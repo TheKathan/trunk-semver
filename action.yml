@@ -163,9 +163,7 @@ runs:
         cat > comment-body.txt << EOF
 ## 📦 Version
 
-The latest version for this PR has been tagged as **${VERSION}**
-
-Type: **${TYPE}**
+The latest version for this PR has been tagged as **${VERSION}** (${TYPE})
 EOF
 
         # Check if bot comment already exists
