@@ -160,16 +160,13 @@ runs:
         fi
 
         # Create comment body
-        cat > comment-body.txt << 'EOF'
+        cat > comment-body.txt << EOF
 ## 📦 Version
 
-The latest version for this PR has been tagged as **VERSION_PLACEHOLDER**
+The latest version for this PR has been tagged as **${VERSION}**
 
-Type: **TYPE_PLACEHOLDER**
+Type: **${TYPE}**
 EOF
-
-        sed -i "s/VERSION_PLACEHOLDER/$VERSION/g" comment-body.txt
-        sed -i "s/TYPE_PLACEHOLDER/$TYPE/g" comment-body.txt
 
         # Check if bot comment already exists
         EXISTING_COMMENT=$(gh pr view ${{ github.event.pull_request.number }} --json comments --jq '.comments[] | select(.author.login == "github-actions" and (.body | contains("📦 Version"))) | .id' | head -1)
