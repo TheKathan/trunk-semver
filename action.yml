@@ -1,0 +1,101 @@
+name: "Semantic Versioning"
+description: "Calculate semantic version based on branch patterns"
+author: "TheKathan"
+
+inputs:
+  major-version:
+    description: "Major version number"
+    required: false
+    default: "1"
+  enable-prerelease:
+    description: "Enable pre-release versioning on feature/fix branches"
+    required: false
+    default: "false"
+  github-token:
+    description: "GitHub token for API access"
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  version:
+    description: "Calculated semantic version"
+    value: ${{ steps.version.outputs.version }}
+  is-prerelease:
+    description: "Whether this is a pre-release version"
+    value: ${{ steps.version.outputs.is_prerelease }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Calculate Version
+      id: version
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      run: |
+        git fetch --all --tags --force
+
+        CURRENT_TAG=$(git tag --points-at HEAD | grep -E "^v[0-9]" | sort -V | tail -n 1)
+        if [ -n "$CURRENT_TAG" ]; then
+          echo "version=$CURRENT_TAG" >> $GITHUB_OUTPUT
+          echo "skip_tag=true" >> $GITHUB_OUTPUT
+          [[ "$CURRENT_TAG" =~ -[a-z]+\.[0-9]+$ ]] && echo "is_prerelease=true" >> $GITHUB_OUTPUT || echo "is_prerelease=false" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+
+        BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+        LATEST=$(git tag | grep -E "^v${{ inputs.major-version }}\.[0-9]+\.[0-9]+$" | sort -V | tail -n 1)
+        IFS='.' read -r MAJ MIN PAT <<< "${LATEST#v:-${{ inputs.major-version }}.0.0}"
+
+        if [[ "$BRANCH" == "main" ]]; then
+          SOURCE=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" | \
+            jq -r '.[0].head.ref // empty')
+
+          case "$SOURCE" in
+            feature/*|feat/*) MIN=$((MIN + 1)); PAT=0 ;;
+            *) PAT=$((PAT + 1)) ;;
+          esac
+
+          VERSION="v$MAJ.$MIN.$PAT"
+          echo "is_prerelease=false" >> $GITHUB_OUTPUT
+
+        elif [[ "${{ inputs.enable-prerelease }}" == "true" ]]; then
+          case "$BRANCH" in
+            feature/*|feat/*)
+              MIN=$((MIN + 1)); PAT=0; SUFFIX="alpha"
+              ;;
+            fix/*|hotfix/*)
+              PAT=$((PAT + 1)); SUFFIX="fix"
+              ;;
+            chore/*)
+              PAT=$((PAT + 1)); SUFFIX="chore"
+              ;;
+            *)
+              echo "Branch '$BRANCH' does not match expected patterns"
+              exit 1
+              ;;
+          esac
+
+          COUNTER=$(git tag | grep -E "^v${MAJ}\.${MIN}\.${PAT}-${SUFFIX}\.[0-9]+$" | \
+            tail -n 1 | grep -oE "[0-9]+$" || echo "0")
+          VERSION="v$MAJ.$MIN.$PAT-$SUFFIX.$((COUNTER + 1))"
+          echo "is_prerelease=true" >> $GITHUB_OUTPUT
+
+        else
+          echo "Not on main and pre-release disabled. Skipping versioning."
+          exit 1
+        fi
+
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: Push Tag
+      if: steps.version.outputs.skip_tag != 'true'
+      shell: bash
+      run: |
+        git tag ${{ steps.version.outputs.version }}
+        git push origin ${{ steps.version.outputs.version }}
+
+branding:
+  icon: "tag"
+  color: "blue"
