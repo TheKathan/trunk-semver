@@ -155,10 +155,8 @@ runs:
 
         if [[ "$IS_PRERELEASE" == "true" ]]; then
           TYPE="Pre-release"
-          NOTE="Will be published as pre-release tag"
         else
           TYPE="Release"
-          NOTE="Will be published when merged to main"
         fi
 
         cat > comment.md << EOF
@@ -166,8 +164,7 @@ runs:
 
         This PR will create version: **$VERSION**
 
-        - Type: **$TYPE**
-        - $NOTE
+        Type: **$TYPE**
         EOF
 
         gh pr comment ${{ github.event.pull_request.number }} --body-file comment.md
