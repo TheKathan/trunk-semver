@@ -97,7 +97,7 @@ When you merge to main, it drops the suffix and creates the final version.
 | `enable-prerelease` | `false` | Enable pre-release tags on feature branches |
 | `github-token` | `${{ github.token }}` | Token for API access |
 | `branch-patterns` | `""` | Custom branch patterns (JSON format, optional) |
-| `comment-on-pr` | `false` | Add version preview comment to PRs |
+| `comment-on-pr` | `false` | Add version comment to PRs (requires `enable-prerelease: true`) |
 | `add-to-summary` | `false` | Add version to GitHub Actions job summary |
 
 ## Outputs
@@ -106,6 +106,39 @@ When you merge to main, it drops the suffix and creates the final version.
 |--------|-------------|
 | `version` | The version tag that was created (e.g., `v1.2.3`) |
 | `is-prerelease` | `true` if it's a pre-release, `false` otherwise |
+| `branch` | Branch name used for versioning |
+| `previous-version` | Previous version tag |
+| `bump-type` | Type of version bump (Minor or Patch) |
+
+## PR Comments & Job Summaries
+
+Enable helpful version information directly in your pull requests and workflow summaries:
+
+```yaml
+- uses: TheKathan/semantic-versioning@v1
+  with:
+    major-version: "1"
+    enable-prerelease: "true"
+    comment-on-pr: "true"      # Adds comment to PRs
+    add-to-summary: "true"      # Adds to workflow summary
+```
+
+Both features display the same information in a clean table format:
+
+```
+## 📦 Version: v1.2.0-alpha.1
+
+| Field | Value |
+|-------|-------|
+| Type | Pre-release |
+| Branch | feature/new-feature |
+| Bump | Minor |
+```
+
+**Notes:**
+- PR comments only appear when `enable-prerelease` is `true` (versions are created on feature branches)
+- Job summaries appear on main branch merges or when `enable-prerelease` is `true`
+- PR comments are updated in place (no duplicate comments)
 
 ## Creating Releases
 
