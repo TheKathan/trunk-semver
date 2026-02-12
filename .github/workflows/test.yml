@@ -24,13 +24,6 @@ jobs:
           fi
           echo "Action file validated"
 
-      - name: Test Version Calculation
-        if: github.event_name == 'pull_request'
-        uses: ./
-        with:
-          major-version: "1"
-          enable-prerelease: "false"
-
       - name: Create Release Version
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         id: version
