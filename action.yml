@@ -161,12 +161,16 @@ runs:
           NOTE="Will be published when merged to main"
         fi
 
-        gh pr comment ${{ github.event.pull_request.number }} --body "## 📦 Version Preview
+        cat > comment.md << EOF
+        ## 📦 Version Preview
 
-This PR will create version: **$VERSION**
+        This PR will create version: **$VERSION**
 
-- Type: **$TYPE**
-- $NOTE"
+        - Type: **$TYPE**
+        - $NOTE
+        EOF
+
+        gh pr comment ${{ github.event.pull_request.number }} --body-file comment.md
 
     - name: Push Tag
       if: steps.version.outputs.skip_tag != 'true'
