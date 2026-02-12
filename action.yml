@@ -174,7 +174,6 @@ runs:
         echo "| Type | $TYPE |" >> $GITHUB_STEP_SUMMARY
         echo "| Branch | $BRANCH |" >> $GITHUB_STEP_SUMMARY
         echo "| Bump | $BUMP |" >> $GITHUB_STEP_SUMMARY
-        echo "| Previous | $PREVIOUS |" >> $GITHUB_STEP_SUMMARY
 
     - name: Comment on PR
       if: inputs.comment-on-pr == 'true' && github.event_name == 'pull_request' && inputs.enable-prerelease == 'true'
@@ -195,7 +194,7 @@ runs:
         fi
 
         # Create comment body
-        printf "## 📦 Version: **%s**\n\n| Field | Value |\n|-------|-------|\n| Type | %s |\n| Branch | %s |\n| Bump | %s |\n| Previous | %s |\n" "$VERSION" "$TYPE" "$BRANCH" "$BUMP" "$PREVIOUS" > comment-body.txt
+        printf "## 📦 Version: **%s**\n\n| Field | Value |\n|-------|-------|\n| Type | %s |\n| Branch | %s |\n| Bump | %s |\n" "$VERSION" "$TYPE" "$BRANCH" "$BUMP" > comment-body.txt
 
         # Check if bot comment already exists
         EXISTING_COMMENT=$(gh pr view ${{ github.event.pull_request.number }} --json comments --jq '.comments[] | select(.author.login == "github-actions[bot]" and (.body | contains("📦 Version"))) | .id' | head -1)
