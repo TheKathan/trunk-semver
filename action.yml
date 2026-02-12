@@ -102,8 +102,20 @@ runs:
       if: steps.version.outputs.skip_tag != 'true'
       shell: bash
       run: |
-        git tag ${{ steps.version.outputs.version }}
-        git push origin ${{ steps.version.outputs.version }}
+        VERSION="${{ steps.version.outputs.version }}"
+        IS_PRERELEASE="${{ steps.version.outputs.is_prerelease }}"
+
+        git tag "$VERSION"
+        git push origin "$VERSION"
+
+        if [[ "$IS_PRERELEASE" == "false" ]]; then
+          MAJOR_TAG=$(echo "$VERSION" | grep -oE "^v[0-9]+" || true)
+          if [[ -n "$MAJOR_TAG" ]]; then
+            echo "Updating major version tag: $MAJOR_TAG"
+            git tag -f "$MAJOR_TAG" "$VERSION"
+            git push origin "$MAJOR_TAG" --force
+          fi
+        fi
 
 branding:
   icon: "tag"
