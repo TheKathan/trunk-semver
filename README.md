@@ -8,8 +8,6 @@
 
 Automatically version your releases based on branch naming conventions. Works on main branch merges with optional pre-release support.
 
-> Testing PR comment and job summary features.
-
 ## Quick Start
 
 ```yaml
