@@ -1,4 +1,4 @@
-name: "Semantic Versioning"
+name: "Branch-Based Semantic Versioning"
 description: "Automatic semantic versioning based on branch naming conventions. Supports major, minor, patch bumps and pre-release tags."
 author: "TheKathan"
 
