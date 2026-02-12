@@ -63,6 +63,7 @@ runs:
 
           case "$SOURCE" in
             feature/*|feat/*) MIN=$((MIN + 1)); PAT=0 ;;
+            fix/*|hotfix/*|bugfix/*|chore/*|docs/*|refactor/*|perf/*|performance/*|test/*|tests/*|build/*|ci/*|style/*) PAT=$((PAT + 1)) ;;
             *) PAT=$((PAT + 1)) ;;
           esac
 
@@ -74,11 +75,32 @@ runs:
             feature/*|feat/*)
               MIN=$((MIN + 1)); PAT=0; SUFFIX="alpha"
               ;;
-            fix/*|hotfix/*)
+            fix/*|hotfix/*|bugfix/*)
               PAT=$((PAT + 1)); SUFFIX="fix"
               ;;
             chore/*)
               PAT=$((PAT + 1)); SUFFIX="chore"
+              ;;
+            docs/*)
+              PAT=$((PAT + 1)); SUFFIX="docs"
+              ;;
+            refactor/*)
+              PAT=$((PAT + 1)); SUFFIX="refactor"
+              ;;
+            perf/*|performance/*)
+              PAT=$((PAT + 1)); SUFFIX="perf"
+              ;;
+            test/*|tests/*)
+              PAT=$((PAT + 1)); SUFFIX="test"
+              ;;
+            build/*)
+              PAT=$((PAT + 1)); SUFFIX="build"
+              ;;
+            ci/*)
+              PAT=$((PAT + 1)); SUFFIX="ci"
+              ;;
+            style/*)
+              PAT=$((PAT + 1)); SUFFIX="style"
               ;;
             *)
               echo "Branch '$BRANCH' does not match expected patterns"
