@@ -35,6 +35,15 @@ outputs:
   is-prerelease:
     description: "Whether this is a pre-release version"
     value: ${{ steps.version.outputs.is_prerelease }}
+  branch:
+    description: "Branch name used for versioning"
+    value: ${{ steps.version.outputs.branch }}
+  previous-version:
+    description: "Previous version tag"
+    value: ${{ steps.version.outputs.previous_version }}
+  bump-type:
+    description: "Type of version bump (Minor or Patch)"
+    value: ${{ steps.version.outputs.bump_type }}
 
 runs:
   using: "composite"
@@ -65,6 +74,12 @@ runs:
         LATEST="${LATEST:-v${{ inputs.major-version }}.0.0}"
         IFS='.' read -r MAJ MIN PAT <<< "${LATEST#v}"
         echo "Version base: $MAJ.$MIN.$PAT"
+
+        # Determine bump type based on branch
+        BUMP_TYPE="Patch"
+        case "$BRANCH" in
+          feature/*|feat/*) BUMP_TYPE="Minor" ;;
+        esac
 
         if [[ "$BRANCH" == "main" ]]; then
           echo "On main branch, checking PR source"
@@ -131,9 +146,12 @@ runs:
         fi
 
         echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+        echo "previous_version=$LATEST" >> $GITHUB_OUTPUT
+        echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
 
         # Add to job summary if enabled
-        if [[ "${{ inputs.add-to-summary }}" == "true" ]]; then
+        if [[ "${{ inputs.add-to-summary }}" == "true" ]] && ([[ "$BRANCH" == "main" ]] || [[ "${{ inputs.enable-prerelease }}" == "true" ]]); then
           echo "## 📦 Version: \`$VERSION\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch**: \`$BRANCH\`" >> $GITHUB_STEP_SUMMARY
@@ -145,32 +163,36 @@ runs:
         fi
 
     - name: Comment on PR
-      if: inputs.comment-on-pr == 'true' && github.event_name == 'pull_request'
+      if: inputs.comment-on-pr == 'true' && github.event_name == 'pull_request' && inputs.enable-prerelease == 'true'
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github-token }}
       run: |
         VERSION="${{ steps.version.outputs.version }}"
         IS_PRERELEASE="${{ steps.version.outputs.is_prerelease }}"
+        BRANCH="${{ steps.version.outputs.branch }}"
+        PREVIOUS="${{ steps.version.outputs.previous_version }}"
+        BUMP="${{ steps.version.outputs.bump_type }}"
 
         if [[ "$IS_PRERELEASE" == "true" ]]; then
           TYPE="Pre-release"
-          NOTE="Will be published as pre-release tag"
         else
           TYPE="Release"
-          NOTE="Will be published when merged to main"
         fi
 
-        cat > comment.md << EOF
-        ## 📦 Version Preview
+        # Create comment body
+        printf "## 📦 Version: **%s**\n\n| Field | Value |\n|-------|-------|\n| Type | %s |\n| Branch | %s |\n| Bump | %s |\n| Previous | %s |\n" "$VERSION" "$TYPE" "$BRANCH" "$BUMP" "$PREVIOUS" > comment-body.txt
 
-        This PR will create version: **$VERSION**
+        # Check if bot comment already exists
+        EXISTING_COMMENT=$(gh pr view ${{ github.event.pull_request.number }} --json comments --jq '.comments[] | select(.author.login == "github-actions[bot]" and (.body | contains("📦 Version"))) | .id' | head -1)
 
-        - Type: **$TYPE**
-        - $NOTE
-        EOF
-
-        gh pr comment ${{ github.event.pull_request.number }} --body-file comment.md
+        if [[ -n "$EXISTING_COMMENT" ]]; then
+          # Update existing comment
+          gh api -X PATCH "/repos/${{ github.repository }}/issues/comments/$EXISTING_COMMENT" -F body=@comment-body.txt
+        else
+          # Create new comment
+          gh pr comment ${{ github.event.pull_request.number }} --body-file comment-body.txt
+        fi
 
     - name: Push Tag
       if: steps.version.outputs.skip_tag != 'true'
