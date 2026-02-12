@@ -159,21 +159,27 @@ runs:
           TYPE="Release"
         fi
 
-        COMMENT_BODY="## 📦 Version
+        # Create comment body
+        cat > comment-body.txt << 'EOF'
+## 📦 Version
 
-The latest version for this PR has been tagged as **$VERSION**
+The latest version for this PR has been tagged as **VERSION_PLACEHOLDER**
 
-Type: **$TYPE**"
+Type: **TYPE_PLACEHOLDER**
+EOF
+
+        sed -i "s/VERSION_PLACEHOLDER/$VERSION/g" comment-body.txt
+        sed -i "s/TYPE_PLACEHOLDER/$TYPE/g" comment-body.txt
 
         # Check if bot comment already exists
         EXISTING_COMMENT=$(gh pr view ${{ github.event.pull_request.number }} --json comments --jq '.comments[] | select(.author.login == "github-actions" and (.body | contains("📦 Version"))) | .id' | head -1)
 
         if [[ -n "$EXISTING_COMMENT" ]]; then
           # Update existing comment
-          gh api -X PATCH "/repos/${{ github.repository }}/issues/comments/$EXISTING_COMMENT" -f body="$COMMENT_BODY"
+          gh api -X PATCH "/repos/${{ github.repository }}/issues/comments/$EXISTING_COMMENT" -F body=@comment-body.txt
         else
           # Create new comment
-          gh pr comment ${{ github.event.pull_request.number }} --body "$COMMENT_BODY"
+          gh pr comment ${{ github.event.pull_request.number }} --body-file comment-body.txt
         fi
 
     - name: Push Tag
