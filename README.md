@@ -1,5 +1,7 @@
 # Semantic Versioning Action
 
+[![Test and Release](https://github.com/TheKathan/semantic-versioning/actions/workflows/test.yml/badge.svg)](https://github.com/TheKathan/semantic-versioning/actions/workflows/test.yml)
+
 Automatic semantic versioning for GitHub repositories based on branch naming conventions.
 
 ## Features

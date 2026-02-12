@@ -1,23 +1,46 @@
-name: Test Action
+name: Test and Release
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
-  workflow_dispatch:
 
 jobs:
-  test:
+  test-and-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Test Main Branch Mode
+      - name: Validate Action
+        run: |
+          if [ ! -f action.yml ]; then
+            echo "action.yml not found"
+            exit 1
+          fi
+          echo "Action file validated"
+
+      - name: Test Version Calculation
+        if: github.event_name == 'pull_request'
+        uses: ./
+        with:
+          major-version: "1"
+          enable-prerelease: "false"
+
+      - name: Create Release Version
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        id: version
         uses: ./
         with:
           major-version: "1"
           enable-prerelease: "false"
 
       - name: Display Version
-        run: echo "Generated version would be created on merge to main"
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "Created version: ${{ steps.version.outputs.version }}"
+          echo "Is prerelease: ${{ steps.version.outputs.is-prerelease }}"
