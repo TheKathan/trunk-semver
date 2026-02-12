@@ -44,5 +44,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create ${{ steps.version.outputs.version }} \
-            --title "Release ${{ steps.version.outputs.version }}" \
+            --title "${{ steps.version.outputs.version }}" \
             --generate-notes
