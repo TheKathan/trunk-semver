@@ -2,6 +2,9 @@
 
 [![Test and Release](https://github.com/TheKathan/semantic-versioning/actions/workflows/test.yml/badge.svg)](https://github.com/TheKathan/semantic-versioning/actions/workflows/test.yml)
 [![version](https://img.shields.io/github/v/release/TheKathan/semantic-versioning?label=version)](https://github.com/TheKathan/semantic-versioning/releases/latest)
+[![License](https://img.shields.io/github/license/TheKathan/semantic-versioning)](LICENSE)
+[![Issues](https://img.shields.io/github/issues/TheKathan/semantic-versioning)](https://github.com/TheKathan/semantic-versioning/issues)
+[![PRs](https://img.shields.io/github/issues-pr/TheKathan/semantic-versioning)](https://github.com/TheKathan/semantic-versioning/pulls)
 
 Automatically version your releases based on branch naming conventions. Works on main branch merges with optional pre-release support.
 
@@ -91,6 +94,9 @@ When you merge to main, it drops the suffix and creates the final version.
 | `major-version` | `1` | Major version number |
 | `enable-prerelease` | `false` | Enable pre-release tags on feature branches |
 | `github-token` | `${{ github.token }}` | Token for API access |
+| `branch-patterns` | `""` | Custom branch patterns (JSON format, optional) |
+| `comment-on-pr` | `false` | Add version preview comment to PRs |
+| `add-to-summary` | `false` | Add version to GitHub Actions job summary |
 
 ## Outputs
 
