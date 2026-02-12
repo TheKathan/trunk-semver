@@ -1,0 +1,15 @@
+# Code Owners for semantic-versioning
+# These owners will be automatically requested for review when PRs modify matching files
+
+# Default owner for everything in the repo
+* @TheKathan
+
+# Action definition
+/action.yml @TheKathan
+
+# Documentation
+/README.md @TheKathan
+/CHANGELOG.md @TheKathan
+
+# Workflows
+/.github/workflows/ @TheKathan
