@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -23,6 +24,16 @@ jobs:
             exit 1
           fi
           echo "Action file validated"
+
+      - name: Test PR Features
+        if: github.event_name == 'pull_request'
+        id: pr-version
+        uses: ./
+        with:
+          major-version: "1"
+          enable-prerelease: "true"
+          comment-on-pr: "true"
+          add-to-summary: "true"
 
       - name: Create Release Version
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
