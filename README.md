@@ -154,6 +154,49 @@ If you want GitHub releases instead of just tags:
   run: gh release create ${{ steps.version.outputs.version }} --generate-notes
 ```
 
+## FAQ
+
+### How do I change the major version?
+
+Use the `major-version` input to set your desired major version:
+
+```yaml
+- uses: TheKathan/semantic-versioning@v1
+  with:
+    major-version: "2"  # Creates v2.x.x tags
+```
+
+When you're ready to bump to a new major version (e.g., v1 → v2), simply update this value. The action will start creating tags from the new major version baseline (e.g., v2.0.0, v2.0.1, etc.).
+
+### Can I customize branch patterns?
+
+Yes! Use the `branch-patterns` input with JSON format:
+
+```yaml
+- uses: TheKathan/semantic-versioning@v1
+  with:
+    branch-patterns: |
+      {
+        "minor": ["feature/*", "feat/*", "enhancement/*"],
+        "patch": ["fix/*", "hotfix/*", "bugfix/*", "chore/*"]
+      }
+```
+
+**Default patterns** (if not specified):
+- **Minor bump**: `feature/*`, `feat/*`
+- **Patch bump**: `fix/*`, `hotfix/*`, `bugfix/*`, `chore/*`, `docs/*`, `refactor/*`, `perf/*`, `test/*`, `build/*`, `ci/*`, `style/*`
+
+### What happens if I don't use conventional branch names?
+
+**On main branch:** Any branch name defaults to a patch bump (e.g., v1.0.0 → v1.0.1)
+
+**With `enable-prerelease: true`:** The action will fail with an error message if your branch doesn't match any expected patterns. This ensures intentional versioning.
+
+**Solution:** Either:
+1. Rename your branch to match a pattern (e.g., `feature/my-feature`)
+2. Add custom patterns using `branch-patterns` to include your naming convention
+3. Set `enable-prerelease: false` and only version on main branch merges
+
 ## License
 
 GPL-3.0
