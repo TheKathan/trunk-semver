@@ -153,21 +153,20 @@ runs:
         VERSION="${{ steps.version.outputs.version }}"
         IS_PRERELEASE="${{ steps.version.outputs.is_prerelease }}"
 
-        COMMENT="## 📦 Version Preview
-
-This PR will create version: **${VERSION}**
-
-"
-
         if [[ "$IS_PRERELEASE" == "true" ]]; then
-          COMMENT+="- Type: **Pre-release**
-- Will be published as pre-release tag"
+          TYPE="Pre-release"
+          NOTE="Will be published as pre-release tag"
         else
-          COMMENT+="- Type: **Release**
-- Will be published when merged to main"
+          TYPE="Release"
+          NOTE="Will be published when merged to main"
         fi
 
-        gh pr comment ${{ github.event.pull_request.number }} --body "$COMMENT"
+        gh pr comment ${{ github.event.pull_request.number }} --body "## 📦 Version Preview
+
+This PR will create version: **$VERSION**
+
+- Type: **$TYPE**
+- $NOTE"
 
     - name: Push Tag
       if: steps.version.outputs.skip_tag != 'true'
