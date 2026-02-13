@@ -1,5 +1,5 @@
-name: "Semantic Versioning"
-description: "Automatic semantic versioning based on branch naming conventions. Supports major, minor, patch bumps and pre-release tags."
+name: "Trunk Semver"
+description: "Trunk-based semantic versioning. Automatic version bumps from branch naming patterns. Supports major, minor, patch bumps and pre-release tags."
 author: "TheKathan"
 
 inputs:

@@ -1,12 +1,12 @@
-# Semantic Versioning Action
+# Trunk Semver
 
-[![Test and Release](https://github.com/TheKathan/semantic-versioning/actions/workflows/test.yml/badge.svg)](https://github.com/TheKathan/semantic-versioning/actions/workflows/test.yml)
-[![version](https://img.shields.io/github/v/release/TheKathan/semantic-versioning?label=version)](https://github.com/TheKathan/semantic-versioning/releases/latest)
-[![License](https://img.shields.io/github/license/TheKathan/semantic-versioning)](LICENSE)
-[![Issues](https://img.shields.io/github/issues/TheKathan/semantic-versioning)](https://github.com/TheKathan/semantic-versioning/issues)
-[![PRs](https://img.shields.io/github/issues-pr/TheKathan/semantic-versioning)](https://github.com/TheKathan/semantic-versioning/pulls)
+[![Test and Release](https://github.com/TheKathan/trunk-semver/actions/workflows/test.yml/badge.svg)](https://github.com/TheKathan/trunk-semver/actions/workflows/test.yml)
+[![version](https://img.shields.io/github/v/release/TheKathan/trunk-semver?label=version)](https://github.com/TheKathan/trunk-semver/releases/latest)
+[![License](https://img.shields.io/github/license/TheKathan/trunk-semver)](LICENSE)
+[![Issues](https://img.shields.io/github/issues/TheKathan/trunk-semver)](https://github.com/TheKathan/trunk-semver/issues)
+[![PRs](https://img.shields.io/github/issues-pr/TheKathan/trunk-semver)](https://github.com/TheKathan/trunk-semver/pulls)
 
-Automatically version your releases based on branch naming conventions. Works on main branch merges with optional pre-release support.
+Trunk-based semantic versioning for GitHub Actions. Automatic version bumps from branch naming patterns. Feature branches bump minor, fix branches bump patch.
 
 ## Quick Start
 
@@ -24,7 +24,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: TheKathan/semantic-versioning@v1
+      - uses: TheKathan/trunk-semver@v1
         with:
           major-version: "1"
 ```
@@ -64,7 +64,7 @@ When a PR is merged to `main`:
 Set `enable-prerelease: "true"` to version feature branches before they're merged:
 
 ```yaml
-- uses: TheKathan/semantic-versioning@v1
+- uses: TheKathan/trunk-semver@v1
   with:
     major-version: "1"
     enable-prerelease: "true"
@@ -113,7 +113,7 @@ When you merge to main, it drops the suffix and creates the final version.
 Enable helpful version information directly in your pull requests and workflow summaries:
 
 ```yaml
-- uses: TheKathan/semantic-versioning@v1
+- uses: TheKathan/trunk-semver@v1
   with:
     major-version: "1"
     enable-prerelease: "true"
@@ -145,7 +145,7 @@ If you want GitHub releases instead of just tags:
 ```yaml
 - name: Version
   id: version
-  uses: TheKathan/semantic-versioning@v1
+  uses: TheKathan/trunk-semver@v1
 
 - name: Create Release
   if: steps.version.outputs.is-prerelease == 'false'
@@ -161,7 +161,7 @@ If you want GitHub releases instead of just tags:
 Use the `major-version` input to set your desired major version:
 
 ```yaml
-- uses: TheKathan/semantic-versioning@v1
+- uses: TheKathan/trunk-semver@v1
   with:
     major-version: "2"  # Creates v2.x.x tags
 ```
@@ -173,7 +173,7 @@ When you're ready to bump to a new major version (e.g., v1 → v2), simply updat
 Yes! Use the `branch-patterns` input with JSON format:
 
 ```yaml
-- uses: TheKathan/semantic-versioning@v1
+- uses: TheKathan/trunk-semver@v1
   with:
     branch-patterns: |
       {
@@ -203,4 +203,4 @@ GPL-3.0
 
 ## Contributing
 
-Found a bug or have an idea? Open an issue or submit a PR at [TheKathan/semantic-versioning](https://github.com/TheKathan/semantic-versioning)
+Found a bug or have an idea? Open an issue or submit a PR at [TheKathan/trunk-semver](https://github.com/TheKathan/trunk-semver)
